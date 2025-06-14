@@ -215,8 +215,7 @@
 
     <div class="grid" id="betGrid"></div>
   </div>
-
-  <button class="save-button" id="downloadBtn" onclick="downloadCard()">Download Image</button>
+  <button class="save-button" onclick="downloadCard()">Download Image</button>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script>
@@ -234,10 +233,9 @@
       for (let j = 0; j <= 9; j++) {
         const cell = document.createElement('div');
         cell.className = 'cell';
-
         const label = document.createElement('div');
         label.className = 'cell-label';
-        label.textContent = `${i}-${j}`;
+        label.textContent = ${i}-${j};
         label.addEventListener('click', (e) => {
           e.stopPropagation();
           cell.classList.toggle('paid');
@@ -247,6 +245,7 @@
         const input = document.createElement('textarea');
         input.placeholder = '';
         input.rows = 1;
+
         input.addEventListener('input', () => {
           input.style.height = 'auto';
           input.style.height = input.scrollHeight + 'px';
@@ -268,42 +267,23 @@
 
     function downloadCard() {
       const captureArea = document.getElementById('captureArea');
-      const button = document.getElementById('downloadBtn');
+      const originalWidth = captureArea.style.width;
+      const originalMaxWidth = captureArea.style.maxWidth;
 
-      // Hide button
-      button.style.display = 'none';
-
-      const originalStyle = {
-        width: captureArea.style.width,
-        maxWidth: captureArea.style.maxWidth,
-        height: captureArea.style.height,
-        overflow: captureArea.style.overflow
-      };
-
-      // Resize for full capture
-      captureArea.style.width = captureArea.scrollWidth + 'px';
-      captureArea.style.maxWidth = 'none';
-      captureArea.style.height = captureArea.scrollHeight + 'px';
-      captureArea.style.overflow = 'visible';
+      captureArea.style.width = "1200px";
+      captureArea.style.maxWidth = "1200px";
 
       html2canvas(captureArea, {
         scale: 3,
-        useCORS: true,
-        scrollY: -window.scrollY,
-        windowWidth: document.documentElement.scrollWidth,
-        windowHeight: document.documentElement.scrollHeight
+        useCORS: true
       }).then(canvas => {
         const link = document.createElement('a');
         link.download = 'bet_card.png';
-        link.href = canvas.toDataURL('image/png');
+        link.href = canvas.toDataURL();
         link.click();
 
-        // Restore
-        captureArea.style.width = originalStyle.width;
-        captureArea.style.maxWidth = originalStyle.maxWidth;
-        captureArea.style.height = originalStyle.height;
-        captureArea.style.overflow = originalStyle.overflow;
-        button.style.display = 'inline-block';
+        captureArea.style.width = originalWidth;
+        captureArea.style.maxWidth = originalMaxWidth;
       });
     }
   </script>
