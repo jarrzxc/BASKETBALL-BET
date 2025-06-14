@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Basketball Bet Card</title>
   <style>
     :root {
@@ -33,7 +33,7 @@
     body {
       display: flex;
       flex-direction: column;
-      align-items: center;
+      align-items: stretch;
     }
 
     .card {
@@ -41,7 +41,7 @@
       padding: 0;
       width: 100%;
       max-width: 1200px;
-      box-sizing: border-box;
+      margin: 0 auto;
       overflow-x: auto;
     }
 
@@ -125,12 +125,17 @@
       background: var(--paid);
     }
 
+    .cell.paid textarea,
+    .cell.paid .cell-label {
+      color: #000;
+    }
+
     .cell.selected {
       background: var(--selected);
     }
 
-    .cell.paid textarea,
-    .cell.paid .cell-label {
+    .cell.selected textarea,
+    .cell.selected .cell-label {
       color: #000;
     }
 
@@ -223,6 +228,7 @@
       const img = document.getElementById(id);
       const file = event.target.files[0];
       if (file) {
+        img.crossOrigin = "anonymous";
         img.src = URL.createObjectURL(file);
         img.style.display = 'block';
       }
@@ -233,13 +239,18 @@
       for (let j = 0; j <= 9; j++) {
         const cell = document.createElement('div');
         cell.className = 'cell';
+
         const label = document.createElement('div');
         label.className = 'cell-label';
         label.textContent = `${i}-${j}`;
         label.addEventListener('click', (e) => {
           e.stopPropagation();
-          cell.classList.toggle('paid');
-          cell.classList.remove('selected');
+          if (cell.classList.contains('paid')) {
+            cell.classList.remove('paid');
+          } else {
+            cell.classList.add('paid');
+            cell.classList.remove('selected');
+          }
         });
 
         const input = document.createElement('textarea');
@@ -250,9 +261,8 @@
           input.style.height = 'auto';
           input.style.height = input.scrollHeight + 'px';
           if (input.value.trim() !== '') {
-            cell.classList.add('selected');
             if (!cell.classList.contains('paid')) {
-              cell.classList.remove('paid');
+              cell.classList.add('selected');
             }
           } else {
             cell.classList.remove('selected');
