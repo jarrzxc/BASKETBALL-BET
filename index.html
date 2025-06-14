@@ -79,7 +79,7 @@
     input[type="text"] {
       flex: 1;
       padding: 14px;
-      font-size: 20px;
+      font-size: 22px;
       background: var(--unpaid);
       color: var(--text);
       border: 1px solid var(--border);
@@ -90,16 +90,16 @@
     .grid {
       display: grid;
       grid-template-columns: repeat(10, 1fr);
-      gap: 14px;
+      gap: 16px;
       margin-top: 20px;
     }
 
     .cell {
       background: var(--unpaid);
       border-radius: 10px;
-      padding: 20px 12px;
+      padding: 22px 14px;
       text-align: center;
-      font-size: 26px;
+      font-size: 30px;
       position: relative;
       transition: background 0.3s;
       display: flex;
@@ -114,7 +114,7 @@
       width: 100%;
       cursor: pointer;
       font-weight: bold;
-      font-size: 24px;
+      font-size: 28px;
       color: var(--text);
     }
 
@@ -124,14 +124,14 @@
       border: none;
       background: transparent;
       text-align: center;
-      font-size: 22px;
+      font-size: 26px;
       margin-top: 10px;
       font-family: Arial, sans-serif;
       color: var(--text);
       resize: none;
       overflow: hidden;
       height: auto;
-      min-height: 28px;
+      min-height: 32px;
     }
 
     .cell.paid {
@@ -151,7 +151,7 @@
       color: #fff;
       border: none;
       border-radius: 10px;
-      font-size: 18px;
+      font-size: 22px;
       cursor: pointer;
     }
 
@@ -164,25 +164,25 @@
 
       .grid {
         grid-template-columns: repeat(5, 1fr);
-        gap: 10px;
+        gap: 12px;
       }
 
       .cell {
-        font-size: 20px;
-        padding: 14px 8px;
+        font-size: 24px;
+        padding: 18px 10px;
       }
 
       .cell-label {
-        font-size: 20px;
+        font-size: 24px;
       }
 
       .save-button {
-        font-size: 16px;
-        padding: 12px 20px;
+        font-size: 20px;
+        padding: 14px 24px;
       }
 
       input[type="text"] {
-        font-size: 18px;
+        font-size: 20px;
         padding: 12px;
       }
     }
@@ -190,7 +190,7 @@
 </head>
 <body>
   <div class="card" id="captureArea">
-    <input type="text" placeholder="Date / Time" style="margin-bottom:16px; width: 100%; box-sizing: border-box; font-size: 20px;" />
+    <input type="text" placeholder="Date / Time" style="margin-bottom:16px; width: 100%; box-sizing: border-box; font-size: 24px;" />
 
     <div class="team-row">
       <div class="team-logo" onclick="document.getElementById('file1').click()">
