@@ -125,14 +125,17 @@
       background: var(--paid);
     }
 
-    .cell.selected {
+    .cell.selected:not(.paid) {
       background: var(--selected);
     }
 
     .cell.paid textarea,
-    .cell.paid .cell-label,
-    .cell.selected textarea,
-    .cell.selected .cell-label {
+    .cell.paid .cell-label {
+      color: #000;
+    }
+
+    .cell.selected:not(.paid) textarea,
+    .cell.selected:not(.paid) .cell-label {
       color: #000;
     }
 
@@ -241,6 +244,7 @@
         label.addEventListener('click', (e) => {
           e.stopPropagation();
           cell.classList.toggle('paid');
+          cell.classList.remove('selected');
         });
 
         const input = document.createElement('textarea');
@@ -250,9 +254,11 @@
         input.addEventListener('input', () => {
           input.style.height = 'auto';
           input.style.height = input.scrollHeight + 'px';
-
           if (input.value.trim() !== '') {
             cell.classList.add('selected');
+            if (!cell.classList.contains('paid')) {
+              cell.classList.remove('paid');
+            }
           } else {
             cell.classList.remove('selected');
           }
@@ -266,21 +272,20 @@
 
     function downloadCard() {
       const captureArea = document.getElementById('captureArea');
-      const originalScrollTop = window.scrollY;
       const originalWidth = captureArea.style.width;
       const originalMaxWidth = captureArea.style.maxWidth;
-      const originalOverflow = document.body.style.overflow;
 
       captureArea.style.width = "1200px";
       captureArea.style.maxWidth = "1200px";
-      document.body.style.overflow = "visible";
+
       window.scrollTo(0, 0);
 
       html2canvas(captureArea, {
         scale: 3,
         useCORS: true,
         scrollY: -window.scrollY,
-        windowHeight: captureArea.scrollHeight
+        windowWidth: document.documentElement.scrollWidth,
+        windowHeight: document.documentElement.scrollHeight
       }).then(canvas => {
         const link = document.createElement('a');
         link.download = 'bet_card.png';
@@ -289,8 +294,6 @@
 
         captureArea.style.width = originalWidth;
         captureArea.style.maxWidth = originalMaxWidth;
-        document.body.style.overflow = originalOverflow;
-        window.scrollTo(0, originalScrollTop);
       });
     }
   </script>
