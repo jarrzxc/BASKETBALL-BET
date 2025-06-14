@@ -11,7 +11,7 @@
       --text: #e5e5e7;
       --accent: #0a84ff;
       --paid: #30d158;
-      --selected: #c7c7cc;
+      --selected: #d1d1d6;
       --unpaid: #2c2c2e;
       --border: #3a3a3c;
     }
@@ -23,6 +23,7 @@
       font-family: Arial, sans-serif;
       color: var(--text);
       width: 100%;
+      height: auto;
       min-height: 100vh;
       overflow-x: hidden;
     }
@@ -134,17 +135,18 @@
       min-height: 24px;
     }
 
-    .cell.selected {
-      background: var(--selected);
-      color: #000;
-    }
-
     .cell.paid {
       background: var(--paid);
     }
 
+    .cell.selected {
+      background: var(--selected);
+    }
+
     .cell.paid .cell-label,
-    .cell.paid textarea {
+    .cell.paid textarea,
+    .cell.selected .cell-label,
+    .cell.selected textarea {
       color: #000;
     }
 
@@ -162,20 +164,54 @@
     @media (max-width: 768px) {
       .grid {
         grid-template-columns: repeat(5, 1fr);
+        gap: 8px;
+      }
+
+      .card {
+        padding: 12px;
+      }
+
+      .team-logo {
+        width: 48px;
+        height: 48px;
+      }
+
+      .cell {
+        padding: 14px 6px;
+        font-size: 20px;
+      }
+
+      .cell-label {
+        font-size: 18px;
+      }
+
+      input[type="text"] {
+        font-size: 18px;
+        padding: 10px;
+      }
+
+      .cell textarea {
+        font-size: 18px;
+      }
+
+      .save-button {
+        margin: 24px;
+        padding: 14px 24px;
+        font-size: 16px;
       }
     }
   </style>
 </head>
 <body>
   <div class="card" id="captureArea">
-    <input type="text" id="gameTime" placeholder="Date / Time" style="margin-bottom: 20px; width: 100%;" />
+    <input type="text" placeholder="Date / Time" style="margin-bottom: 20px; width: 100%;" />
 
     <div class="team-row">
       <div class="team-logo" onclick="document.getElementById('file1').click()">
         <img id="logo1" />
         <input type="file" id="file1" accept="image/*" onchange="loadLogo(event, 'logo1')" />
       </div>
-      <input type="text" id="team1" placeholder="Team 1" />
+      <input type="text" placeholder="Team 1" />
     </div>
 
     <div class="team-row">
@@ -183,7 +219,7 @@
         <img id="logo2" />
         <input type="file" id="file2" accept="image/*" onchange="loadLogo(event, 'logo2')" />
       </div>
-      <input type="text" id="team2" placeholder="Team 2" />
+      <input type="text" placeholder="Team 2" />
     </div>
 
     <div class="grid" id="betGrid"></div>
@@ -192,89 +228,23 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script>
-    const grid = document.getElementById('betGrid');
-
-    function saveState() {
-      const data = {
-        time: document.getElementById('gameTime').value,
-        team1: document.getElementById('team1').value,
-        team2: document.getElementById('team2').value,
-        logo1: document.getElementById('logo1').src || '',
-        logo2: document.getElementById('logo2').src || '',
-        cells: []
-      };
-
-      document.querySelectorAll('.cell').forEach(cell => {
-        data.cells.push({
-          state: cell.classList.contains('paid') ? 'paid' :
-                 cell.classList.contains('selected') ? 'selected' : 'unpaid',
-          text: cell.querySelector('textarea').value
-        });
-      });
-
-      localStorage.setItem('betCardData', JSON.stringify(data));
-    }
-
-    function loadState() {
-      const saved = localStorage.getItem('betCardData');
-      if (!saved) return;
-
-      const data = JSON.parse(saved);
-      document.getElementById('gameTime').value = data.time || '';
-      document.getElementById('team1').value = data.team1 || '';
-      document.getElementById('team2').value = data.team2 || '';
-      if (data.logo1) {
-        document.getElementById('logo1').src = data.logo1;
-        document.getElementById('logo1').style.display = 'block';
-      }
-      if (data.logo2) {
-        document.getElementById('logo2').src = data.logo2;
-        document.getElementById('logo2').style.display = 'block';
-      }
-
-      document.querySelectorAll('.cell').forEach((cell, index) => {
-        const { state, text } = data.cells[index] || {};
-        cell.classList.remove('paid', 'selected');
-        if (state) cell.classList.add(state);
-        const textarea = cell.querySelector('textarea');
-        textarea.value = text || '';
-      });
-    }
-
     function loadLogo(event, id) {
       const img = document.getElementById(id);
       const file = event.target.files[0];
       if (file) {
-        const reader = new FileReader();
-        reader.onload = () => {
-          img.src = reader.result;
-          img.style.display = 'block';
-          saveState();
-        };
-        reader.readAsDataURL(file);
+        img.src = URL.createObjectURL(file);
+        img.style.display = 'block';
       }
     }
 
+    const grid = document.getElementById('betGrid');
     for (let i = 0; i <= 9; i++) {
       for (let j = 0; j <= 9; j++) {
         const cell = document.createElement('div');
         cell.className = 'cell';
-
         const label = document.createElement('div');
         label.className = 'cell-label';
         label.textContent = `${i}-${j}`;
-        label.addEventListener('click', (e) => {
-          e.stopPropagation();
-          if (cell.classList.contains('paid')) {
-            cell.classList.remove('paid');
-          } else if (cell.classList.contains('selected')) {
-            cell.classList.remove('selected');
-            cell.classList.add('paid');
-          } else {
-            cell.classList.add('selected');
-          }
-          saveState();
-        });
 
         const input = document.createElement('textarea');
         input.placeholder = '';
@@ -282,6 +252,21 @@
         input.addEventListener('input', () => {
           input.style.height = 'auto';
           input.style.height = input.scrollHeight + 'px';
+        });
+
+        label.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (cell.classList.contains('paid')) {
+            cell.classList.remove('paid');
+            cell.querySelector('textarea').style.color = 'white';
+          } else if (cell.classList.contains('selected')) {
+            cell.classList.remove('selected');
+            cell.classList.add('paid');
+            cell.querySelector('textarea').style.color = 'black';
+          } else {
+            cell.classList.add('selected');
+            cell.querySelector('textarea').style.color = 'black';
+          }
           saveState();
         });
 
@@ -290,10 +275,6 @@
         grid.appendChild(cell);
       }
     }
-
-    document.querySelectorAll('#gameTime, #team1, #team2').forEach(el => {
-      el.addEventListener('input', saveState);
-    });
 
     function downloadCard() {
       const captureArea = document.getElementById('captureArea');
@@ -312,12 +293,15 @@
         link.download = 'bet_card.png';
         link.href = canvas.toDataURL();
         link.click();
+
         captureArea.style.width = originalWidth;
         captureArea.style.maxWidth = originalMaxWidth;
       });
     }
 
-    window.addEventListener('DOMContentLoaded', loadState);
+    function saveState() {
+      // You can add saving logic here (e.g., to localStorage)
+    }
   </script>
 </body>
 </html>
