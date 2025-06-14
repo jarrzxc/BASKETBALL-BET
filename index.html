@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Basketball Bet Card</title>
   <style>
     :root {
@@ -33,7 +33,7 @@
     body {
       display: flex;
       flex-direction: column;
-      align-items: stretch;
+      align-items: center;
     }
 
     .card {
@@ -41,7 +41,7 @@
       padding: 0;
       width: 100%;
       max-width: 1200px;
-      margin: 0 auto;
+      box-sizing: border-box;
       overflow-x: auto;
     }
 
@@ -125,15 +125,12 @@
       background: var(--paid);
     }
 
-    .cell.paid textarea,
-    .cell.paid .cell-label {
-      color: #000;
-    }
-
     .cell.selected {
       background: var(--selected);
     }
 
+    .cell.paid textarea,
+    .cell.paid .cell-label,
     .cell.selected textarea,
     .cell.selected .cell-label {
       color: #000;
@@ -228,7 +225,6 @@
       const img = document.getElementById(id);
       const file = event.target.files[0];
       if (file) {
-        img.crossOrigin = "anonymous";
         img.src = URL.createObjectURL(file);
         img.style.display = 'block';
       }
@@ -239,18 +235,12 @@
       for (let j = 0; j <= 9; j++) {
         const cell = document.createElement('div');
         cell.className = 'cell';
-
         const label = document.createElement('div');
         label.className = 'cell-label';
         label.textContent = `${i}-${j}`;
         label.addEventListener('click', (e) => {
           e.stopPropagation();
-          if (cell.classList.contains('paid')) {
-            cell.classList.remove('paid');
-          } else {
-            cell.classList.add('paid');
-            cell.classList.remove('selected');
-          }
+          cell.classList.toggle('paid');
         });
 
         const input = document.createElement('textarea');
@@ -260,10 +250,9 @@
         input.addEventListener('input', () => {
           input.style.height = 'auto';
           input.style.height = input.scrollHeight + 'px';
+
           if (input.value.trim() !== '') {
-            if (!cell.classList.contains('paid')) {
-              cell.classList.add('selected');
-            }
+            cell.classList.add('selected');
           } else {
             cell.classList.remove('selected');
           }
@@ -277,15 +266,21 @@
 
     function downloadCard() {
       const captureArea = document.getElementById('captureArea');
+      const originalScrollTop = window.scrollY;
       const originalWidth = captureArea.style.width;
       const originalMaxWidth = captureArea.style.maxWidth;
+      const originalOverflow = document.body.style.overflow;
 
       captureArea.style.width = "1200px";
       captureArea.style.maxWidth = "1200px";
+      document.body.style.overflow = "visible";
+      window.scrollTo(0, 0);
 
       html2canvas(captureArea, {
         scale: 3,
-        useCORS: true
+        useCORS: true,
+        scrollY: -window.scrollY,
+        windowHeight: captureArea.scrollHeight
       }).then(canvas => {
         const link = document.createElement('a');
         link.download = 'bet_card.png';
@@ -294,6 +289,8 @@
 
         captureArea.style.width = originalWidth;
         captureArea.style.maxWidth = originalMaxWidth;
+        document.body.style.overflow = originalOverflow;
+        window.scrollTo(0, originalScrollTop);
       });
     }
   </script>
