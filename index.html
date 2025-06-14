@@ -82,6 +82,17 @@
       pointer-events: none;
     }
 
+    .remove-btn {
+      background: #ff453a;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 10px;
+      padding: 4px 6px;
+      margin-left: 4px;
+      cursor: pointer;
+    }
+
     input[type="text"] {
       flex: 1;
       padding: 14px;
@@ -199,16 +210,18 @@
     <div class="team-row">
       <div class="team-logo" onclick="document.getElementById('file1').click()">
         <img id="logo1" />
-        <input type="file" id="file1" accept="image/*" onchange="loadLogo(event, 'logo1')" />
+        <input type="file" id="file1" accept="image/*" onchange="loadLogo(event, 'logo1', 'logo1Data')" />
       </div>
+      <button class="remove-btn" onclick="removeLogo('logo1', 'logo1Data')">Remove</button>
       <input id="team1" type="text" placeholder="Team 1" />
     </div>
 
     <div class="team-row">
       <div class="team-logo" onclick="document.getElementById('file2').click()">
         <img id="logo2" />
-        <input type="file" id="file2" accept="image/*" onchange="loadLogo(event, 'logo2')" />
+        <input type="file" id="file2" accept="image/*" onchange="loadLogo(event, 'logo2', 'logo2Data')" />
       </div>
+      <button class="remove-btn" onclick="removeLogo('logo2', 'logo2Data')">Remove</button>
       <input id="team2" type="text" placeholder="Team 2" />
     </div>
 
@@ -225,6 +238,8 @@
         dateTime: document.getElementById('dateTime').value,
         team1: document.getElementById('team1').value,
         team2: document.getElementById('team2').value,
+        logo1: localStorage.getItem('logo1Data') || '',
+        logo2: localStorage.getItem('logo2Data') || '',
         cells: []
       };
 
@@ -246,6 +261,9 @@
       document.getElementById('team1').value = saved.team1 || '';
       document.getElementById('team2').value = saved.team2 || '';
 
+      if (saved.logo1) setLogoFromData('logo1', saved.logo1);
+      if (saved.logo2) setLogoFromData('logo2', saved.logo2);
+
       const cells = document.querySelectorAll('.cell');
       saved.cells.forEach((item, i) => {
         const cell = cells[i];
@@ -255,6 +273,33 @@
         if (item.selected) cell.classList.add('selected');
         if (item.paid) cell.classList.add('paid');
       });
+    }
+
+    function setLogoFromData(id, data) {
+      const img = document.getElementById(id);
+      img.src = data;
+      img.style.display = 'block';
+    }
+
+    function loadLogo(event, id, storageKey) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const dataURL = e.target.result;
+        localStorage.setItem(storageKey, dataURL);
+        setLogoFromData(id, dataURL);
+        saveAll();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function removeLogo(id, storageKey) {
+      localStorage.removeItem(storageKey);
+      const img = document.getElementById(id);
+      img.src = '';
+      img.style.display = 'none';
+      saveAll();
     }
 
     for (let i = 0; i <= 9; i++) {
@@ -294,15 +339,6 @@
       }
     }
 
-    function loadLogo(event, id) {
-      const img = document.getElementById(id);
-      const file = event.target.files[0];
-      if (file) {
-        img.src = URL.createObjectURL(file);
-        img.style.display = 'block';
-      }
-    }
-
     function downloadCard() {
       const captureArea = document.getElementById('captureArea');
       const originalWidth = captureArea.style.width;
@@ -326,7 +362,6 @@
       });
     }
 
-    // Init
     document.querySelectorAll('input[type="text"]').forEach(input => {
       input.addEventListener('input', saveAll);
     });
