@@ -43,6 +43,22 @@
       padding: 16px;
     }
 
+    .datetime-container {
+      width: 100%;
+      margin-bottom: 20px;
+    }
+
+    .datetime-container input[type="text"] {
+      width: 100%;
+      padding: 14px;
+      font-size: 20px;
+      background: var(--unpaid);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      box-sizing: border-box;
+    }
+
     .team-row {
       display: flex;
       align-items: center;
@@ -197,7 +213,9 @@
 </head>
 <body>
   <div class="card" id="captureArea">
-    <input type="text" placeholder="Date / Time" style="margin-bottom: 20px; width: 100%;" />
+    <div class="datetime-container">
+      <input type="text" placeholder="Date / Time" />
+    </div>
 
     <div class="team-row">
       <div class="team-logo" onclick="document.getElementById('file1').click()">
