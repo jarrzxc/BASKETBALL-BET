@@ -11,8 +11,8 @@
       --text: #e5e5e7;
       --accent: #0a84ff;
       --paid: #30d158;
+      --mid: #d1d1d6;
       --unpaid: #2c2c2e;
-      --light: #ccc;
       --border: #3a3a3c;
     }
 
@@ -31,23 +31,32 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start;
     }
 
     .card {
       background: var(--card);
       width: 100%;
       max-width: 1000px;
-      margin: 0 auto;
-      box-sizing: border-box;
       padding: 16px;
+      box-sizing: border-box;
+    }
+
+    input[type="text"], textarea {
+      background: var(--unpaid);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 18px;
+      width: 100%;
+      padding: 12px;
+      box-sizing: border-box;
     }
 
     .team-row {
       display: flex;
       align-items: center;
-      margin-bottom: 16px;
-      gap: 12px;
+      gap: 16px;
+      margin-bottom: 20px;
       flex-wrap: wrap;
     }
 
@@ -69,7 +78,7 @@
       display: none;
     }
 
-    .team-logo input[type="file"] {
+    .team-logo input {
       display: none;
     }
 
@@ -85,25 +94,12 @@
     }
 
     .remove-btn {
-      margin-left: 4px;
-      padding: 2px 8px;
-      background: #ff453a;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
+      color: red;
       font-size: 12px;
+      border: none;
+      background: none;
       cursor: pointer;
-    }
-
-    input[type="text"] {
-      flex: 1;
-      padding: 14px;
-      font-size: 18px;
-      background: var(--unpaid);
-      color: var(--text);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      min-width: 0;
+      margin-left: 5px;
     }
 
     .grid {
@@ -116,41 +112,32 @@
     .cell {
       background: var(--unpaid);
       border-radius: 10px;
-      padding: 18px 10px;
+      padding: 14px 8px;
       text-align: center;
-      font-size: 24px;
+      font-size: 20px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      transition: background 0.3s;
     }
 
     .cell-label {
       font-weight: bold;
-      font-size: 22px;
+      font-size: 18px;
       cursor: pointer;
     }
 
     .cell textarea {
-      width: 100%;
+      margin-top: 8px;
       border: none;
       background: transparent;
       text-align: center;
-      font-size: 20px;
-      margin-top: 8px;
-      color: var(--text);
       resize: none;
       overflow: hidden;
-      min-height: 24px;
     }
 
-    .cell.grey {
-      background: var(--light);
-    }
-
-    .cell.grey .cell-label,
-    .cell.grey textarea {
-      color: #000;
+    .cell.mid {
+      background: var(--mid);
     }
 
     .cell.paid {
@@ -158,7 +145,9 @@
     }
 
     .cell.paid .cell-label,
-    .cell.paid textarea {
+    .cell.mid .cell-label,
+    .cell.paid textarea,
+    .cell.mid textarea {
       color: #000;
     }
 
@@ -178,60 +167,32 @@
         grid-template-columns: repeat(5, 1fr);
       }
 
-      .card {
-        padding: 12px;
-      }
-
-      .team-logo {
-        width: 48px;
-        height: 48px;
-      }
-
-      .cell {
-        padding: 14px 6px;
-        font-size: 20px;
-      }
-
-      .cell-label {
-        font-size: 18px;
-      }
-
-      .save-button {
-        margin: 24px;
-        padding: 14px 24px;
-        font-size: 16px;
-      }
-
-      input[type="text"] {
-        font-size: 16px;
-      }
-
-      .cell textarea {
-        font-size: 18px;
+      .team-row {
+        flex-direction: row;
       }
     }
   </style>
 </head>
 <body>
   <div class="card" id="captureArea">
-    <input type="text" id="dateInput" placeholder="Date / Time" style="margin-bottom: 20px; width: 100%;" />
+    <input type="text" id="dateInput" placeholder="Date / Time" />
 
     <div class="team-row">
       <div class="team-logo" onclick="document.getElementById('file1').click()">
         <img id="logo1" />
-        <input type="file" id="file1" accept="image/*" onchange="loadLogo(event, 'logo1', 'logoData1')" />
+        <input type="file" id="file1" accept="image/*" onchange="loadLogo(event, 'logo1', 'remove1')" />
       </div>
-      <button class="remove-btn" onclick="removeLogo('logo1', 'file1', 'logoData1')">X</button>
-      <input type="text" id="team1Input" placeholder="Team 1" />
+      <input type="text" id="team1" placeholder="Team 1" />
+      <button class="remove-btn" id="remove1" onclick="removeLogo('logo1', 'file1', 'remove1')">Remove</button>
     </div>
 
     <div class="team-row">
       <div class="team-logo" onclick="document.getElementById('file2').click()">
         <img id="logo2" />
-        <input type="file" id="file2" accept="image/*" onchange="loadLogo(event, 'logo2', 'logoData2')" />
+        <input type="file" id="file2" accept="image/*" onchange="loadLogo(event, 'logo2', 'remove2')" />
       </div>
-      <button class="remove-btn" onclick="removeLogo('logo2', 'file2', 'logoData2')">X</button>
-      <input type="text" id="team2Input" placeholder="Team 2" />
+      <input type="text" id="team2" placeholder="Team 2" />
+      <button class="remove-btn" id="remove2" onclick="removeLogo('logo2', 'file2', 'remove2')">Remove</button>
     </div>
 
     <div class="grid" id="betGrid"></div>
@@ -240,100 +201,33 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script>
-    const grid = document.getElementById('betGrid');
-    const totalCells = 100;
-    const storageKey = 'betCardData';
+    const grid = document.getElementById("betGrid");
 
-    function saveData() {
-      const data = {
-        date: document.getElementById('dateInput').value,
-        team1: document.getElementById('team1Input').value,
-        team2: document.getElementById('team2Input').value,
-        grid: [],
-        logo1: localStorage.getItem('logoData1'),
-        logo2: localStorage.getItem('logoData2')
-      };
-      document.querySelectorAll('.cell textarea').forEach((ta, idx) => {
-        const cell = ta.parentElement;
-        data.grid.push({
-          text: ta.value,
-          class: cell.className
-        });
-      });
-      localStorage.setItem(storageKey, JSON.stringify(data));
-    }
-
-    function loadData() {
-      const data = JSON.parse(localStorage.getItem(storageKey) || '{}');
-      if (data.date) document.getElementById('dateInput').value = data.date;
-      if (data.team1) document.getElementById('team1Input').value = data.team1;
-      if (data.team2) document.getElementById('team2Input').value = data.team2;
-      if (data.logo1) setLogoFromData('logo1', data.logo1);
-      if (data.logo2) setLogoFromData('logo2', data.logo2);
-      document.querySelectorAll('.cell textarea').forEach((ta, idx) => {
-        if (data.grid && data.grid[idx]) {
-          ta.value = data.grid[idx].text;
-          ta.parentElement.className = data.grid[idx].class;
-        }
-      });
-    }
-
-    function loadLogo(event, id, storageKey) {
-      const img = document.getElementById(id);
-      const file = event.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-          img.src = e.target.result;
-          img.style.display = 'block';
-          localStorage.setItem(storageKey, e.target.result);
-          saveData();
-        };
-        reader.readAsDataURL(file);
-      }
-    }
-
-    function removeLogo(imgId, fileId, storageKey) {
-      document.getElementById(imgId).style.display = 'none';
-      document.getElementById(imgId).src = '';
-      document.getElementById(fileId).value = '';
-      localStorage.removeItem(storageKey);
-      saveData();
-    }
-
-    function setLogoFromData(id, dataUrl) {
-      const img = document.getElementById(id);
-      img.src = dataUrl;
-      img.style.display = 'block';
-    }
-
-    for (let i = 0; i <= 9; i++) {
-      for (let j = 0; j <= 9; j++) {
-        const cell = document.createElement('div');
-        cell.className = 'cell';
-        const label = document.createElement('div');
-        label.className = 'cell-label';
+    for (let i = 0; i < 10; i++) {
+      for (let j = 0; j < 10; j++) {
+        const cell = document.createElement("div");
+        cell.className = "cell";
+        const label = document.createElement("div");
+        label.className = "cell-label";
         label.textContent = `${i}-${j}`;
-        label.addEventListener('click', (e) => {
-          e.stopPropagation();
-          if (cell.classList.contains('grey')) {
-            cell.classList.remove('grey');
-            cell.classList.add('paid');
-          } else if (cell.classList.contains('paid')) {
-            cell.classList.remove('paid');
+        label.addEventListener("click", () => {
+          if (cell.classList.contains("mid")) {
+            cell.classList.remove("mid");
+            cell.classList.add("paid");
+          } else if (cell.classList.contains("paid")) {
+            cell.classList.remove("paid");
           } else {
-            cell.classList.add('grey');
+            cell.classList.add("mid");
           }
-          saveData();
+          saveState();
         });
 
-        const input = document.createElement('textarea');
-        input.placeholder = '';
+        const input = document.createElement("textarea");
         input.rows = 1;
-        input.addEventListener('input', () => {
-          input.style.height = 'auto';
-          input.style.height = input.scrollHeight + 'px';
-          saveData();
+        input.addEventListener("input", () => {
+          input.style.height = "auto";
+          input.style.height = input.scrollHeight + "px";
+          saveState();
         });
 
         cell.appendChild(label);
@@ -342,27 +236,89 @@
       }
     }
 
-    document.getElementById('dateInput').addEventListener('input', saveData);
-    document.getElementById('team1Input').addEventListener('input', saveData);
-    document.getElementById('team2Input').addEventListener('input', saveData);
-
     function downloadCard() {
-      document.querySelectorAll('.remove-btn').forEach(btn => btn.style.display = 'none');
-      const captureArea = document.getElementById('captureArea');
-      const originalWidth = captureArea.style.width;
-      captureArea.style.width = '1000px';
-      window.scrollTo(0, 0);
-      html2canvas(captureArea, { scale: 3, useCORS: true }).then(canvas => {
-        const link = document.createElement('a');
-        link.download = 'bet_card.png';
+      document.querySelectorAll(".remove-btn").forEach(btn => btn.style.display = "none");
+      html2canvas(document.getElementById("captureArea"), { scale: 3 }).then(canvas => {
+        const link = document.createElement("a");
+        link.download = "bet_card.png";
         link.href = canvas.toDataURL();
         link.click();
-        captureArea.style.width = originalWidth;
-        document.querySelectorAll('.remove-btn').forEach(btn => btn.style.display = 'inline-block');
+        document.querySelectorAll(".remove-btn").forEach(btn => btn.style.display = "inline");
       });
     }
 
-    window.addEventListener('load', loadData);
+    function loadLogo(event, id, removeId) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const img = document.getElementById(id);
+          img.src = e.target.result;
+          img.style.display = "block";
+          document.getElementById(removeId).style.display = "inline";
+          localStorage.setItem(id, e.target.result);
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function removeLogo(imgId, inputId, removeId) {
+      document.getElementById(imgId).style.display = "none";
+      document.getElementById(imgId).src = "";
+      document.getElementById(inputId).value = "";
+      document.getElementById(removeId).style.display = "none";
+      localStorage.removeItem(imgId);
+    }
+
+    function saveState() {
+      localStorage.setItem("dateInput", document.getElementById("dateInput").value);
+      localStorage.setItem("team1", document.getElementById("team1").value);
+      localStorage.setItem("team2", document.getElementById("team2").value);
+
+      const cellStates = [];
+      document.querySelectorAll(".cell").forEach(cell => {
+        const label = cell.querySelector(".cell-label").textContent;
+        const value = cell.querySelector("textarea").value;
+        let status = "";
+        if (cell.classList.contains("paid")) status = "paid";
+        else if (cell.classList.contains("mid")) status = "mid";
+        cellStates.push({ label, value, status });
+      });
+      localStorage.setItem("cells", JSON.stringify(cellStates));
+    }
+
+    function restoreState() {
+      document.getElementById("dateInput").value = localStorage.getItem("dateInput") || "";
+      document.getElementById("team1").value = localStorage.getItem("team1") || "";
+      document.getElementById("team2").value = localStorage.getItem("team2") || "";
+
+      const logo1 = localStorage.getItem("logo1");
+      if (logo1) {
+        document.getElementById("logo1").src = logo1;
+        document.getElementById("logo1").style.display = "block";
+        document.getElementById("remove1").style.display = "inline";
+      }
+      const logo2 = localStorage.getItem("logo2");
+      if (logo2) {
+        document.getElementById("logo2").src = logo2;
+        document.getElementById("logo2").style.display = "block";
+        document.getElementById("remove2").style.display = "inline";
+      }
+
+      const cells = JSON.parse(localStorage.getItem("cells") || "[]");
+      const allCells = document.querySelectorAll(".cell");
+      cells.forEach((cellData, index) => {
+        if (allCells[index]) {
+          allCells[index].querySelector(".cell-label").textContent = cellData.label;
+          allCells[index].querySelector("textarea").value = cellData.value;
+          allCells[index].classList.remove("paid", "mid");
+          if (cellData.status === "paid") allCells[index].classList.add("paid");
+          if (cellData.status === "mid") allCells[index].classList.add("mid");
+        }
+      });
+    }
+
+    window.addEventListener("load", restoreState);
   </script>
 </body>
 </html>
