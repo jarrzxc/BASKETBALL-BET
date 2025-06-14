@@ -30,11 +30,12 @@
 
     .card {
       background: var(--card);
-      padding: 24px;
+      padding: 32px;
       border-radius: 20px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.7);
       width: 100%;
       max-width: 1000px;
+      box-sizing: border-box;
     }
 
     .team-row {
@@ -99,7 +100,7 @@
       border-radius: 10px;
       padding: 20px 12px;
       text-align: center;
-      font-size: 26px;
+      font-size: 28px;
       position: relative;
       transition: background 0.3s;
       display: flex;
@@ -114,7 +115,7 @@
       width: 100%;
       cursor: pointer;
       font-weight: bold;
-      font-size: 24px;
+      font-size: 26px;
       color: var(--text);
     }
 
@@ -124,7 +125,7 @@
       border: none;
       background: transparent;
       text-align: center;
-      font-size: 22px;
+      font-size: 24px;
       margin-top: 10px;
       font-family: Arial, sans-serif;
       color: var(--text);
@@ -157,7 +158,7 @@
 
     @media (max-width: 768px) {
       .card {
-        padding: 16px;
+        padding: 20px;
         border-radius: 16px;
         max-width: 95%;
       }
@@ -168,12 +169,12 @@
       }
 
       .cell {
-        font-size: 22px;
-        padding: 14px 10px;
+        font-size: 26px;
+        padding: 16px 10px;
       }
 
       .cell-label {
-        font-size: 22px;
+        font-size: 24px;
       }
 
       .save-button {
@@ -182,7 +183,7 @@
       }
 
       input[type="text"] {
-        font-size: 18px;
+        font-size: 20px;
         padding: 12px;
       }
     }
@@ -190,7 +191,7 @@
 </head>
 <body>
   <div class="card" id="captureArea">
-    <input type="text" placeholder="Date / Time" style="margin-bottom:16px; width: 100%; box-sizing: border-box; font-size: 20px;" />
+    <input type="text" placeholder="Date / Time" style="margin-bottom:16px; width: 100%; box-sizing: border-box; font-size: 22px;" />
 
     <div class="team-row">
       <div class="team-logo" onclick="document.getElementById('file1').click()">
@@ -254,11 +255,13 @@
       const captureArea = document.getElementById('captureArea');
       const originalWidth = captureArea.style.width;
       const originalMaxWidth = captureArea.style.maxWidth;
+      const originalPadding = captureArea.style.padding;
 
       captureArea.style.width = "1000px";
       captureArea.style.maxWidth = "1000px";
+      captureArea.style.padding = "32px";
 
-      html2canvas(captureArea, { scale: 2 }).then(canvas => {
+      html2canvas(captureArea, { scale: 2, useCORS: true }).then(canvas => {
         const link = document.createElement('a');
         link.download = 'bet_card.png';
         link.href = canvas.toDataURL();
@@ -266,6 +269,7 @@
 
         captureArea.style.width = originalWidth;
         captureArea.style.maxWidth = originalMaxWidth;
+        captureArea.style.padding = originalPadding;
       });
     }
   </script>
