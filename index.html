@@ -22,7 +22,6 @@
       font-family: Arial, sans-serif;
       color: var(--text);
       width: 100%;
-      height: auto;
       min-height: 100vh;
       overflow-x: hidden;
     }
@@ -31,14 +30,12 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start;
     }
 
     .card {
       background: var(--card);
       width: 100%;
       max-width: 1000px;
-      margin: 0 auto;
       box-sizing: border-box;
       padding: 16px;
     }
@@ -46,8 +43,8 @@
     .team-row {
       display: flex;
       align-items: center;
-      margin-bottom: 20px;
       gap: 16px;
+      margin-bottom: 20px;
     }
 
     .team-logo {
@@ -81,7 +78,6 @@
       left: 50%;
       transform: translate(-50%, -50%);
       pointer-events: none;
-      text-align: center;
     }
 
     input[type="text"] {
@@ -197,7 +193,10 @@
 </head>
 <body>
   <div class="card" id="captureArea">
-    <input type="text" placeholder="Date / Time" style="margin-bottom: 20px; width: 100%;" />
+    <!-- Fixed Date/Time layout -->
+    <div class="team-row" style="margin-bottom: 20px;">
+      <input type="text" placeholder="Date / Time" />
+    </div>
 
     <div class="team-row">
       <div class="team-logo" onclick="document.getElementById('file1').click()">
@@ -217,6 +216,7 @@
 
     <div class="grid" id="betGrid"></div>
   </div>
+
   <button class="save-button" onclick="downloadCard()">Download Image</button>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
