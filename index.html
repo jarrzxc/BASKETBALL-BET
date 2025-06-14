@@ -23,7 +23,6 @@
       font-family: Arial, sans-serif;
       color: var(--text);
       width: 100%;
-      height: auto;
       min-height: 100vh;
       overflow-x: hidden;
     }
@@ -32,7 +31,6 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start;
     }
 
     .card {
@@ -40,8 +38,8 @@
       width: 100%;
       max-width: 1000px;
       margin: 0 auto;
-      box-sizing: border-box;
       padding: 16px;
+      box-sizing: border-box;
     }
 
     .team-row {
@@ -82,7 +80,6 @@
       left: 50%;
       transform: translate(-50%, -50%);
       pointer-events: none;
-      text-align: center;
     }
 
     input[type="text"] {
@@ -111,7 +108,6 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
       transition: background 0.3s;
     }
 
@@ -121,7 +117,6 @@
       cursor: pointer;
     }
 
-    .cell input[type="text"],
     .cell textarea {
       width: 100%;
       border: none;
@@ -164,11 +159,6 @@
     @media (max-width: 768px) {
       .grid {
         grid-template-columns: repeat(5, 1fr);
-        gap: 8px;
-      }
-
-      .card {
-        padding: 12px;
       }
 
       .team-logo {
@@ -204,14 +194,14 @@
 </head>
 <body>
   <div class="card" id="captureArea">
-    <input type="text" placeholder="Date / Time" style="margin-bottom: 20px; width: 100%;" />
+    <input id="dateTime" type="text" placeholder="Date / Time" style="margin-bottom: 20px; width: 100%;" />
 
     <div class="team-row">
       <div class="team-logo" onclick="document.getElementById('file1').click()">
         <img id="logo1" />
         <input type="file" id="file1" accept="image/*" onchange="loadLogo(event, 'logo1')" />
       </div>
-      <input type="text" placeholder="Team 1" />
+      <input id="team1" type="text" placeholder="Team 1" />
     </div>
 
     <div class="team-row">
@@ -219,7 +209,7 @@
         <img id="logo2" />
         <input type="file" id="file2" accept="image/*" onchange="loadLogo(event, 'logo2')" />
       </div>
-      <input type="text" placeholder="Team 2" />
+      <input id="team2" type="text" placeholder="Team 2" />
     </div>
 
     <div class="grid" id="betGrid"></div>
@@ -228,16 +218,45 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script>
-    function loadLogo(event, id) {
-      const img = document.getElementById(id);
-      const file = event.target.files[0];
-      if (file) {
-        img.src = URL.createObjectURL(file);
-        img.style.display = 'block';
-      }
+    const grid = document.getElementById('betGrid');
+
+    function saveAll() {
+      const data = {
+        dateTime: document.getElementById('dateTime').value,
+        team1: document.getElementById('team1').value,
+        team2: document.getElementById('team2').value,
+        cells: []
+      };
+
+      document.querySelectorAll('.cell').forEach((cell, index) => {
+        const text = cell.querySelector('textarea').value;
+        const selected = cell.classList.contains('selected');
+        const paid = cell.classList.contains('paid');
+        data.cells.push({ text, selected, paid });
+      });
+
+      localStorage.setItem('betCardData', JSON.stringify(data));
     }
 
-    const grid = document.getElementById('betGrid');
+    function loadAll() {
+      const saved = JSON.parse(localStorage.getItem('betCardData'));
+      if (!saved) return;
+
+      document.getElementById('dateTime').value = saved.dateTime || '';
+      document.getElementById('team1').value = saved.team1 || '';
+      document.getElementById('team2').value = saved.team2 || '';
+
+      const cells = document.querySelectorAll('.cell');
+      saved.cells.forEach((item, i) => {
+        const cell = cells[i];
+        const input = cell.querySelector('textarea');
+        input.value = item.text;
+        input.style.color = (item.selected || item.paid) ? '#000' : '';
+        if (item.selected) cell.classList.add('selected');
+        if (item.paid) cell.classList.add('paid');
+      });
+    }
+
     for (let i = 0; i <= 9; i++) {
       for (let j = 0; j <= 9; j++) {
         const cell = document.createElement('div');
@@ -247,32 +266,40 @@
         label.textContent = `${i}-${j}`;
 
         const input = document.createElement('textarea');
-        input.placeholder = '';
         input.rows = 1;
         input.addEventListener('input', () => {
           input.style.height = 'auto';
           input.style.height = input.scrollHeight + 'px';
+          saveAll();
         });
 
         label.addEventListener('click', (e) => {
           e.stopPropagation();
           if (cell.classList.contains('paid')) {
             cell.classList.remove('paid');
-            cell.querySelector('textarea').style.color = 'white';
           } else if (cell.classList.contains('selected')) {
             cell.classList.remove('selected');
             cell.classList.add('paid');
-            cell.querySelector('textarea').style.color = 'black';
           } else {
             cell.classList.add('selected');
-            cell.querySelector('textarea').style.color = 'black';
           }
-          saveState();
+
+          input.style.color = (cell.classList.contains('selected') || cell.classList.contains('paid')) ? '#000' : '';
+          saveAll();
         });
 
         cell.appendChild(label);
         cell.appendChild(input);
         grid.appendChild(cell);
+      }
+    }
+
+    function loadLogo(event, id) {
+      const img = document.getElementById(id);
+      const file = event.target.files[0];
+      if (file) {
+        img.src = URL.createObjectURL(file);
+        img.style.display = 'block';
       }
     }
 
@@ -299,9 +326,12 @@
       });
     }
 
-    function saveState() {
-      // You can add saving logic here (e.g., to localStorage)
-    }
+    // Init
+    document.querySelectorAll('input[type="text"]').forEach(input => {
+      input.addEventListener('input', saveAll);
+    });
+
+    window.addEventListener('load', loadAll);
   </script>
 </body>
 </html>
