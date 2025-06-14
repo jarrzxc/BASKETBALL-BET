@@ -12,8 +12,8 @@
       --accent: #0a84ff;
       --paid: #30d158;
       --unpaid: #2c2c2e;
+      --light: #ccc;
       --border: #3a3a3c;
-      --selected: #d1d1d6;
     }
 
     html, body {
@@ -31,6 +31,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: flex-start;
     }
 
     .card {
@@ -42,24 +43,12 @@
       padding: 16px;
     }
 
-    input[type="text"]#datetime {
-      width: 100%;
-      padding: 14px;
-      font-size: 20px;
-      background: var(--unpaid);
-      color: var(--text);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      margin-bottom: 20px;
-      box-sizing: border-box;
-    }
-
     .team-row {
       display: flex;
       align-items: center;
-      gap: 16px;
       margin-bottom: 16px;
-      flex-wrap: nowrap;
+      gap: 12px;
+      flex-wrap: wrap;
     }
 
     .team-logo {
@@ -77,6 +66,7 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+      display: none;
     }
 
     .team-logo input[type="file"] {
@@ -92,32 +82,27 @@
       left: 50%;
       transform: translate(-50%, -50%);
       pointer-events: none;
-      text-align: center;
     }
 
     .remove-btn {
-      position: absolute;
-      top: -6px;
-      right: -6px;
-      background: red;
+      margin-left: 4px;
+      padding: 2px 8px;
+      background: #ff453a;
       color: #fff;
       border: none;
-      border-radius: 50%;
-      width: 20px;
-      height: 20px;
-      font-size: 14px;
+      border-radius: 5px;
+      font-size: 12px;
       cursor: pointer;
     }
 
-    .team-row input[type="text"] {
+    input[type="text"] {
       flex: 1;
       padding: 14px;
-      font-size: 20px;
+      font-size: 18px;
       background: var(--unpaid);
       color: var(--text);
       border: 1px solid var(--border);
       border-radius: 10px;
-      box-sizing: border-box;
       min-width: 0;
     }
 
@@ -138,7 +123,6 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      transition: background 0.3s;
     }
 
     .cell-label {
@@ -160,16 +144,19 @@
       min-height: 24px;
     }
 
-    .cell.selected {
-      background: var(--selected);
+    .cell.grey {
+      background: var(--light);
+    }
+
+    .cell.grey .cell-label,
+    .cell.grey textarea {
+      color: #000;
     }
 
     .cell.paid {
       background: var(--paid);
     }
 
-    .cell.selected .cell-label,
-    .cell.selected textarea,
     .cell.paid .cell-label,
     .cell.paid textarea {
       color: #000;
@@ -189,7 +176,6 @@
     @media (max-width: 768px) {
       .grid {
         grid-template-columns: repeat(5, 1fr);
-        gap: 8px;
       }
 
       .card {
@@ -210,46 +196,42 @@
         font-size: 18px;
       }
 
-      .team-row input[type="text"] {
-        font-size: 18px;
-        padding: 10px;
-      }
-
-      input[type="text"]#datetime {
-        font-size: 18px;
-        padding: 10px;
-      }
-
-      .cell textarea {
-        font-size: 18px;
-      }
-
       .save-button {
         margin: 24px;
         padding: 14px 24px;
         font-size: 16px;
+      }
+
+      input[type="text"] {
+        font-size: 16px;
+      }
+
+      .cell textarea {
+        font-size: 18px;
       }
     }
   </style>
 </head>
 <body>
   <div class="card" id="captureArea">
-    <input type="text" id="datetime" placeholder="Date / Time" />
+    <input type="text" id="dateInput" placeholder="Date / Time" style="margin-bottom: 20px; width: 100%;" />
 
     <div class="team-row">
       <div class="team-logo" onclick="document.getElementById('file1').click()">
         <img id="logo1" />
-        <input type="file" id="file1" accept="image/*" onchange="loadLogo(event, 'logo1')" />
+        <input type="file" id="file1" accept="image/*" onchange="loadLogo(event, 'logo1', 'logoData1')" />
       </div>
-      <input type="text" placeholder="Team 1" />
+      <button class="remove-btn" onclick="removeLogo('logo1', 'file1', 'logoData1')">X</button>
+      <input type="text" id="team1Input" placeholder="Team 1" />
     </div>
 
     <div class="team-row">
       <div class="team-logo" onclick="document.getElementById('file2').click()">
         <img id="logo2" />
-        <input type="file" id="file2" accept="image/*" onchange="loadLogo(event, 'logo2')" />
+        <input type="file" id="file2" accept="image/*" onchange="loadLogo(event, 'logo2', 'logoData2')" />
       </div>
-      <input type="text" placeholder="Team 2" />
+      <button class="remove-btn" onclick="removeLogo('logo2', 'file2', 'logoData2')">X</button>
+      <input type="text" id="team2Input" placeholder="Team 2" />
     </div>
 
     <div class="grid" id="betGrid"></div>
@@ -258,16 +240,73 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script>
-    function loadLogo(event, id) {
+    const grid = document.getElementById('betGrid');
+    const totalCells = 100;
+    const storageKey = 'betCardData';
+
+    function saveData() {
+      const data = {
+        date: document.getElementById('dateInput').value,
+        team1: document.getElementById('team1Input').value,
+        team2: document.getElementById('team2Input').value,
+        grid: [],
+        logo1: localStorage.getItem('logoData1'),
+        logo2: localStorage.getItem('logoData2')
+      };
+      document.querySelectorAll('.cell textarea').forEach((ta, idx) => {
+        const cell = ta.parentElement;
+        data.grid.push({
+          text: ta.value,
+          class: cell.className
+        });
+      });
+      localStorage.setItem(storageKey, JSON.stringify(data));
+    }
+
+    function loadData() {
+      const data = JSON.parse(localStorage.getItem(storageKey) || '{}');
+      if (data.date) document.getElementById('dateInput').value = data.date;
+      if (data.team1) document.getElementById('team1Input').value = data.team1;
+      if (data.team2) document.getElementById('team2Input').value = data.team2;
+      if (data.logo1) setLogoFromData('logo1', data.logo1);
+      if (data.logo2) setLogoFromData('logo2', data.logo2);
+      document.querySelectorAll('.cell textarea').forEach((ta, idx) => {
+        if (data.grid && data.grid[idx]) {
+          ta.value = data.grid[idx].text;
+          ta.parentElement.className = data.grid[idx].class;
+        }
+      });
+    }
+
+    function loadLogo(event, id, storageKey) {
       const img = document.getElementById(id);
       const file = event.target.files[0];
       if (file) {
-        img.src = URL.createObjectURL(file);
-        img.style.display = 'block';
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          img.src = e.target.result;
+          img.style.display = 'block';
+          localStorage.setItem(storageKey, e.target.result);
+          saveData();
+        };
+        reader.readAsDataURL(file);
       }
     }
 
-    const grid = document.getElementById('betGrid');
+    function removeLogo(imgId, fileId, storageKey) {
+      document.getElementById(imgId).style.display = 'none';
+      document.getElementById(imgId).src = '';
+      document.getElementById(fileId).value = '';
+      localStorage.removeItem(storageKey);
+      saveData();
+    }
+
+    function setLogoFromData(id, dataUrl) {
+      const img = document.getElementById(id);
+      img.src = dataUrl;
+      img.style.display = 'block';
+    }
+
     for (let i = 0; i <= 9; i++) {
       for (let j = 0; j <= 9; j++) {
         const cell = document.createElement('div');
@@ -277,14 +316,15 @@
         label.textContent = `${i}-${j}`;
         label.addEventListener('click', (e) => {
           e.stopPropagation();
-          if (!cell.classList.contains('selected')) {
-            cell.classList.add('selected');
-          } else if (cell.classList.contains('selected') && !cell.classList.contains('paid')) {
-            cell.classList.remove('selected');
+          if (cell.classList.contains('grey')) {
+            cell.classList.remove('grey');
             cell.classList.add('paid');
-          } else {
+          } else if (cell.classList.contains('paid')) {
             cell.classList.remove('paid');
+          } else {
+            cell.classList.add('grey');
           }
+          saveData();
         });
 
         const input = document.createElement('textarea');
@@ -293,6 +333,7 @@
         input.addEventListener('input', () => {
           input.style.height = 'auto';
           input.style.height = input.scrollHeight + 'px';
+          saveData();
         });
 
         cell.appendChild(label);
@@ -301,31 +342,27 @@
       }
     }
 
+    document.getElementById('dateInput').addEventListener('input', saveData);
+    document.getElementById('team1Input').addEventListener('input', saveData);
+    document.getElementById('team2Input').addEventListener('input', saveData);
+
     function downloadCard() {
+      document.querySelectorAll('.remove-btn').forEach(btn => btn.style.display = 'none');
       const captureArea = document.getElementById('captureArea');
       const originalWidth = captureArea.style.width;
-      const originalMaxWidth = captureArea.style.maxWidth;
-
-      captureArea.classList.add("hide-remove"); // Hide remove buttons if needed
-
-      captureArea.style.width = "1000px";
-      captureArea.style.maxWidth = "1000px";
+      captureArea.style.width = '1000px';
       window.scrollTo(0, 0);
-
-      html2canvas(captureArea, {
-        scale: 3,
-        useCORS: true
-      }).then(canvas => {
+      html2canvas(captureArea, { scale: 3, useCORS: true }).then(canvas => {
         const link = document.createElement('a');
         link.download = 'bet_card.png';
         link.href = canvas.toDataURL();
         link.click();
-
-        captureArea.classList.remove("hide-remove"); // Restore remove buttons
         captureArea.style.width = originalWidth;
-        captureArea.style.maxWidth = originalMaxWidth;
+        document.querySelectorAll('.remove-btn').forEach(btn => btn.style.display = 'inline-block');
       });
     }
+
+    window.addEventListener('load', loadData);
   </script>
 </body>
 </html>
