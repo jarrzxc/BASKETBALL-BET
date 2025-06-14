@@ -11,8 +11,8 @@
       --text: #e5e5e7;
       --accent: #0a84ff;
       --paid: #30d158;
-      --unpaid: #2c2c2e;
       --selected: #d1d1d6;
+      --unpaid: #2c2c2e;
       --border: #3a3a3c;
     }
 
@@ -40,17 +40,6 @@
       width: 100%;
       max-width: 1000px;
       box-sizing: border-box;
-    }
-
-    input[type="text"].datetime {
-      margin: 16px;
-      width: calc(100% - 32px);
-      font-size: 22px;
-      padding: 12px;
-      background: var(--unpaid);
-      color: var(--text);
-      border: 1px solid var(--border);
-      border-radius: 10px;
     }
 
     .team-row {
@@ -93,7 +82,7 @@
       pointer-events: none;
     }
 
-    .team-row input[type="text"] {
+    input[type="text"] {
       flex: 1;
       padding: 14px;
       font-size: 22px;
@@ -101,21 +90,22 @@
       color: var(--text);
       border: 1px solid var(--border);
       border-radius: 10px;
+      font-family: Arial, sans-serif;
     }
 
     .grid {
       display: grid;
       grid-template-columns: repeat(10, 1fr);
-      gap: 8px;
+      gap: 12px;
       padding: 0 16px 20px;
     }
 
     .cell {
       background: var(--unpaid);
       border-radius: 10px;
-      padding: 16px 8px;
+      padding: 20px 12px;
       text-align: center;
-      font-size: 24px;
+      font-size: 28px;
       position: relative;
       transition: background 0.3s;
       display: flex;
@@ -124,14 +114,13 @@
       justify-content: center;
       color: var(--text);
       font-family: Arial, sans-serif;
-      min-height: 80px;
     }
 
     .cell-label {
       width: 100%;
       cursor: pointer;
       font-weight: bold;
-      font-size: 22px;
+      font-size: 26px;
       color: var(--text);
     }
 
@@ -141,14 +130,14 @@
       border: none;
       background: transparent;
       text-align: center;
-      font-size: 20px;
-      margin-top: 8px;
+      font-size: 24px;
+      margin-top: 10px;
       font-family: Arial, sans-serif;
       color: var(--text);
       resize: none;
       overflow: hidden;
       height: auto;
-      min-height: 24px;
+      min-height: 28px;
     }
 
     .cell.paid {
@@ -184,22 +173,20 @@
 
     @media (max-width: 768px) {
       .grid {
-        grid-template-columns: repeat(5, 1fr);
+        grid-template-columns: repeat(10, 1fr);
       }
 
       .cell {
-        font-size: 20px;
-        padding: 14px 6px;
-        min-height: 70px;
+        font-size: 24px;
+        padding: 16px 8px;
       }
 
       .cell-label {
-        font-size: 18px;
+        font-size: 22px;
       }
 
-      input[type="text"],
-      textarea {
-        font-size: 18px;
+      input[type="text"] {
+        font-size: 20px;
         padding: 10px;
       }
     }
@@ -207,7 +194,7 @@
 </head>
 <body>
   <div class="card" id="captureArea">
-    <input type="text" class="datetime" placeholder="Date / Time" />
+    <input type="text" placeholder="Date / Time" style="margin: 16px; width: calc(100% - 32px); font-size: 22px;" />
 
     <div class="team-row">
       <div class="team-logo" onclick="document.getElementById('file1').click()">
@@ -227,7 +214,6 @@
 
     <div class="grid" id="betGrid"></div>
   </div>
-
   <button class="save-button" onclick="downloadCard()">Download Image</button>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -246,7 +232,6 @@
       for (let j = 0; j <= 9; j++) {
         const cell = document.createElement('div');
         cell.className = 'cell';
-
         const label = document.createElement('div');
         label.className = 'cell-label';
         label.textContent = `${i}-${j}`;
@@ -263,7 +248,6 @@
           input.style.height = input.scrollHeight + 'px';
           if (input.value.trim() !== '') {
             cell.classList.add('selected');
-            cell.classList.remove('paid');
           } else {
             cell.classList.remove('selected');
           }
