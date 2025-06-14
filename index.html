@@ -180,12 +180,17 @@
         font-size: 14px;
         padding: 10px 16px;
       }
+
+      input[type="text"] {
+        font-size: 14px;
+        padding: 10px;
+      }
     }
   </style>
 </head>
 <body>
   <div class="card" id="captureArea">
-    <input type="text" placeholder="Date / Time" style="margin-bottom:16px; width: 100%;" />
+    <input type="text" placeholder="Date / Time" style="margin-bottom:16px; width: 100%; box-sizing: border-box; font-size: 16px;" />
 
     <div class="team-row">
       <div class="team-logo" onclick="document.getElementById('file1').click()">
