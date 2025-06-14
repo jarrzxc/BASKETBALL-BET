@@ -11,9 +11,9 @@
       --text: #e5e5e7;
       --accent: #0a84ff;
       --paid: #30d158;
-      --selected: #d1d1d6;
       --unpaid: #2c2c2e;
       --border: #3a3a3c;
+      --selected: #d1d1d6;
     }
 
     html, body {
@@ -31,6 +31,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: flex-start;
     }
 
     .card {
@@ -38,8 +39,8 @@
       width: 100%;
       max-width: 1000px;
       margin: 0 auto;
-      padding: 16px;
       box-sizing: border-box;
+      padding: 16px;
     }
 
     .team-row {
@@ -64,7 +65,6 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      display: none;
     }
 
     .team-logo input[type="file"] {
@@ -80,16 +80,20 @@
       left: 50%;
       transform: translate(-50%, -50%);
       pointer-events: none;
+      text-align: center;
     }
 
     .remove-btn {
-      background: #ff453a;
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      background: red;
+      color: #fff;
       border: none;
-      border-radius: 8px;
-      color: white;
-      font-size: 10px;
-      padding: 4px 6px;
-      margin-left: 4px;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      font-size: 14px;
       cursor: pointer;
     }
 
@@ -119,6 +123,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: center;
       transition: background 0.3s;
     }
 
@@ -128,6 +133,7 @@
       cursor: pointer;
     }
 
+    .cell input[type="text"],
     .cell textarea {
       width: 100%;
       border: none;
@@ -141,18 +147,18 @@
       min-height: 24px;
     }
 
-    .cell.paid {
-      background: var(--paid);
-    }
-
     .cell.selected {
       background: var(--selected);
     }
 
-    .cell.paid .cell-label,
-    .cell.paid textarea,
+    .cell.paid {
+      background: var(--paid);
+    }
+
     .cell.selected .cell-label,
-    .cell.selected textarea {
+    .cell.selected textarea,
+    .cell.paid .cell-label,
+    .cell.paid textarea {
       color: #000;
     }
 
@@ -167,9 +173,18 @@
       cursor: pointer;
     }
 
+    .hide-remove .remove-btn {
+      display: none;
+    }
+
     @media (max-width: 768px) {
       .grid {
         grid-template-columns: repeat(5, 1fr);
+        gap: 8px;
+      }
+
+      .card {
+        padding: 12px;
       }
 
       .team-logo {
@@ -205,102 +220,34 @@
 </head>
 <body>
   <div class="card" id="captureArea">
-    <input id="dateTime" type="text" placeholder="Date / Time" style="margin-bottom: 20px; width: 100%;" />
+    <input type="text" id="datetime" placeholder="Date / Time" style="margin-bottom: 20px; width: 100%;" />
 
     <div class="team-row">
       <div class="team-logo" onclick="document.getElementById('file1').click()">
         <img id="logo1" />
-        <input type="file" id="file1" accept="image/*" onchange="loadLogo(event, 'logo1', 'logo1Data')" />
+        <input type="file" id="file1" accept="image/*" onchange="loadLogo(event, 'logo1', 1)" />
+        <button class="remove-btn" onclick="removeLogo(1); event.stopPropagation();">×</button>
       </div>
-      <button class="remove-btn" onclick="removeLogo('logo1', 'logo1Data')">Remove</button>
-      <input id="team1" type="text" placeholder="Team 1" />
+      <input type="text" id="team1" placeholder="Team 1" />
     </div>
 
     <div class="team-row">
       <div class="team-logo" onclick="document.getElementById('file2').click()">
         <img id="logo2" />
-        <input type="file" id="file2" accept="image/*" onchange="loadLogo(event, 'logo2', 'logo2Data')" />
+        <input type="file" id="file2" accept="image/*" onchange="loadLogo(event, 'logo2', 2)" />
+        <button class="remove-btn" onclick="removeLogo(2); event.stopPropagation();">×</button>
       </div>
-      <button class="remove-btn" onclick="removeLogo('logo2', 'logo2Data')">Remove</button>
-      <input id="team2" type="text" placeholder="Team 2" />
+      <input type="text" id="team2" placeholder="Team 2" />
     </div>
 
     <div class="grid" id="betGrid"></div>
   </div>
+
   <button class="save-button" onclick="downloadCard()">Download Image</button>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script>
     const grid = document.getElementById('betGrid');
-
-    function saveAll() {
-      const data = {
-        dateTime: document.getElementById('dateTime').value,
-        team1: document.getElementById('team1').value,
-        team2: document.getElementById('team2').value,
-        logo1: localStorage.getItem('logo1Data') || '',
-        logo2: localStorage.getItem('logo2Data') || '',
-        cells: []
-      };
-
-      document.querySelectorAll('.cell').forEach((cell, index) => {
-        const text = cell.querySelector('textarea').value;
-        const selected = cell.classList.contains('selected');
-        const paid = cell.classList.contains('paid');
-        data.cells.push({ text, selected, paid });
-      });
-
-      localStorage.setItem('betCardData', JSON.stringify(data));
-    }
-
-    function loadAll() {
-      const saved = JSON.parse(localStorage.getItem('betCardData'));
-      if (!saved) return;
-
-      document.getElementById('dateTime').value = saved.dateTime || '';
-      document.getElementById('team1').value = saved.team1 || '';
-      document.getElementById('team2').value = saved.team2 || '';
-
-      if (saved.logo1) setLogoFromData('logo1', saved.logo1);
-      if (saved.logo2) setLogoFromData('logo2', saved.logo2);
-
-      const cells = document.querySelectorAll('.cell');
-      saved.cells.forEach((item, i) => {
-        const cell = cells[i];
-        const input = cell.querySelector('textarea');
-        input.value = item.text;
-        input.style.color = (item.selected || item.paid) ? '#000' : '';
-        if (item.selected) cell.classList.add('selected');
-        if (item.paid) cell.classList.add('paid');
-      });
-    }
-
-    function setLogoFromData(id, data) {
-      const img = document.getElementById(id);
-      img.src = data;
-      img.style.display = 'block';
-    }
-
-    function loadLogo(event, id, storageKey) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        const dataURL = e.target.result;
-        localStorage.setItem(storageKey, dataURL);
-        setLogoFromData(id, dataURL);
-        saveAll();
-      };
-      reader.readAsDataURL(file);
-    }
-
-    function removeLogo(id, storageKey) {
-      localStorage.removeItem(storageKey);
-      const img = document.getElementById(id);
-      img.src = '';
-      img.style.display = 'none';
-      saveAll();
-    }
 
     for (let i = 0; i <= 9; i++) {
       for (let j = 0; j <= 9; j++) {
@@ -310,16 +257,7 @@
         label.className = 'cell-label';
         label.textContent = `${i}-${j}`;
 
-        const input = document.createElement('textarea');
-        input.rows = 1;
-        input.addEventListener('input', () => {
-          input.style.height = 'auto';
-          input.style.height = input.scrollHeight + 'px';
-          saveAll();
-        });
-
-        label.addEventListener('click', (e) => {
-          e.stopPropagation();
+        label.addEventListener('click', () => {
           if (cell.classList.contains('paid')) {
             cell.classList.remove('paid');
           } else if (cell.classList.contains('selected')) {
@@ -328,9 +266,16 @@
           } else {
             cell.classList.add('selected');
           }
+          saveToLocalStorage();
+        });
 
-          input.style.color = (cell.classList.contains('selected') || cell.classList.contains('paid')) ? '#000' : '';
-          saveAll();
+        const input = document.createElement('textarea');
+        input.placeholder = '';
+        input.rows = 1;
+        input.addEventListener('input', () => {
+          input.style.height = 'auto';
+          input.style.height = input.scrollHeight + 'px';
+          saveToLocalStorage();
         });
 
         cell.appendChild(label);
@@ -339,34 +284,82 @@
       }
     }
 
+    const inputs = ['datetime', 'team1', 'team2'];
+    inputs.forEach(id => {
+      const el = document.getElementById(id);
+      el.addEventListener('input', saveToLocalStorage);
+    });
+
+    function loadLogo(event, imgId, slot) {
+      const img = document.getElementById(imgId);
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          img.src = reader.result;
+          localStorage.setItem(`logo${slot}`, reader.result);
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function removeLogo(slot) {
+      document.getElementById(`logo${slot}`).src = '';
+      localStorage.removeItem(`logo${slot}`);
+    }
+
+    function saveToLocalStorage() {
+      inputs.forEach(id => {
+        localStorage.setItem(id, document.getElementById(id).value);
+      });
+
+      const cellData = [];
+      document.querySelectorAll('.cell').forEach(cell => {
+        cellData.push({
+          text: cell.querySelector('textarea').value,
+          state: cell.classList.contains('paid') ? 'paid' : (cell.classList.contains('selected') ? 'selected' : '')
+        });
+      });
+      localStorage.setItem('cells', JSON.stringify(cellData));
+    }
+
+    function loadFromLocalStorage() {
+      inputs.forEach(id => {
+        const val = localStorage.getItem(id);
+        if (val) document.getElementById(id).value = val;
+      });
+
+      for (let slot of [1, 2]) {
+        const img = localStorage.getItem(`logo${slot}`);
+        if (img) document.getElementById(`logo${slot}`).src = img;
+      }
+
+      const cellData = JSON.parse(localStorage.getItem('cells') || '[]');
+      if (cellData.length) {
+        document.querySelectorAll('.cell').forEach((cell, idx) => {
+          const data = cellData[idx];
+          cell.querySelector('textarea').value = data.text;
+          cell.classList.remove('paid', 'selected');
+          if (data.state) cell.classList.add(data.state);
+        });
+      }
+    }
+
     function downloadCard() {
       const captureArea = document.getElementById('captureArea');
-      const originalWidth = captureArea.style.width;
-      const originalMaxWidth = captureArea.style.maxWidth;
-
       captureArea.style.width = "1000px";
-      captureArea.style.maxWidth = "1000px";
-      window.scrollTo(0, 0);
+      captureArea.classList.add('hide-remove');
 
-      html2canvas(captureArea, {
-        scale: 3,
-        useCORS: true
-      }).then(canvas => {
+      html2canvas(captureArea, { scale: 3, useCORS: true }).then(canvas => {
         const link = document.createElement('a');
         link.download = 'bet_card.png';
         link.href = canvas.toDataURL();
         link.click();
-
-        captureArea.style.width = originalWidth;
-        captureArea.style.maxWidth = originalMaxWidth;
+        captureArea.classList.remove('hide-remove');
       });
     }
 
-    document.querySelectorAll('input[type="text"]').forEach(input => {
-      input.addEventListener('input', saveAll);
-    });
-
-    window.addEventListener('load', loadAll);
+    loadFromLocalStorage();
   </script>
 </body>
 </html>
