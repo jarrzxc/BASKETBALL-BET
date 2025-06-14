@@ -252,14 +252,14 @@
     }
 
     function downloadCard() {
-      const captureArea = document.getElementById('captureArea');
-      const originalWidth = captureArea.style.width;
-      const originalMaxWidth = captureArea.style.maxWidth;
-      const originalPadding = captureArea.style.padding;
-
-      captureArea.style.width = "1000px";
-      captureArea.style.maxWidth = "1000px";
-      captureArea.style.padding = "32px";
+    const captureArea = document.getElementById('captureArea');
+    const originalTransform = captureArea.style.transform;
+    const originalWidth = captureArea.style.width;
+    const originalMaxWidth = captureArea.style.maxWidth;
+      
+    captureArea.style.transform = "scale(1)";
+    captureArea.style.width = "1000px";
+    captureArea.style.maxWidth
 
       html2canvas(captureArea, { scale: 2, useCORS: true }).then(canvas => {
         const link = document.createElement('a');
